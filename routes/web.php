@@ -12,6 +12,7 @@
 */
 
 Route::get('/webhook', 'WebHookController@webhook');
+Route::post('/webhook', 'WebHookController@webhook');
 
 Route::get('/', function () {
     return view('welcome');
