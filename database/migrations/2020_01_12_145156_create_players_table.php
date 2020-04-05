@@ -16,6 +16,8 @@ class CreatePlayersTable extends Migration
         Schema::create('players', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('psid');
+            $table->dateTime('last_played_at');
+            $table->dateTime('last_notified_at');
             $table->timestamps();
         });
     }

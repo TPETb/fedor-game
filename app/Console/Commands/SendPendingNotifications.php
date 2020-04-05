@@ -1,15 +1,9 @@
-<?php
+<?php namespace App\Console\Commands;
 
-namespace App\Console\Commands;
-
-use App\Models\PendingNotification;
+use App\Models\Player;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
-use GuzzleHttp\HandlerStack;
 use Illuminate\Console\Command;
-use Monolog\Handler\TestHandler;
-use Monolog\Logger;
-use Namshi\Cuzzle\Middleware\CurlFormatterMiddleware;
 
 class SendPendingNotifications extends Command
 {
@@ -53,24 +47,28 @@ class SendPendingNotifications extends Command
             ]
         ]);
 
-        $pendingNotifications = PendingNotification::query()
-            ->whereDate('last_played_at', '<=', Carbon::now()->subDay())
+        /** @var Player[] $playersPendingNotification */
+        $playersPendingNotification = Player::query()
+            ->whereDate('last_played_at', '<=', Carbon::now()->subDay()) // excessive. safety trigger for future dev. see WebhookController trick
+            ->whereDate('last_notified_at', '<=', Carbon::now()->subDay())
             ->get();
 
-        foreach ($pendingNotifications as $notification) {
-            if (!in_array($notification->psid, config('facebook.allowed_psids'))) {
+        foreach ($playersPendingNotification as $player) {
+            if (!in_array($player->psid, config('facebook.allowed_psids'))) {
                 continue;
             }
 
             try {
                 $client->post('', [
-                    'body' => \GuzzleHttp\json_encode($this->getBody($notification->psid))
+                    'body' => \GuzzleHttp\json_encode($this->getBody($player->psid))
                 ]);
             } finally {
-                $notification->delete();
+                $player->last_notified_at = Carbon::now();
+                $player->save();
             }
         }
     }
+
 
     private function getBody($psid)
     {
