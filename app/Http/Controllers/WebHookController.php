@@ -11,7 +11,8 @@ class WebHookController extends Controller
 
         $this->log();
 
-        $input = '{"object":"page","entry":[{"id":"111690237027664","time":1586012820046,"messaging":[{"recipient":{"id":"111690237027664"},"timestamp":1586012820046,"sender":{"id":"3800092663364887"},"game_play":{"game_id":"384784729008553","player_id":"2922417977837036"}}]}]}';
+//        $input = '{"object":"page","entry":[{"id":"111690237027664","time":1586012820046,"messaging":[{"recipient":{"id":"111690237027664"},"timestamp":1586012820046,"sender":{"id":"3800092663364887"},"game_play":{"game_id":"384784729008553","player_id":"2922417977837036"}}]}]}';
+        $input = file_get_contents('php://input');
 
         $data = json_decode($input, true);
 
