@@ -19,7 +19,7 @@ class SendPendingNotifications extends Command
      *
      * @var string
      */
-    protected $description = 'Sends notifications to all players who played more then 24 hours ago.';
+    protected $description = 'Sends reminders to players to play again.';
 
     /**
      * Create a new command instance.
@@ -49,24 +49,33 @@ class SendPendingNotifications extends Command
 
         /** @var Player[] $playersPendingNotification */
         $playersPendingNotification = Player::query()
-            ->whereDate('last_played_at', '<=', Carbon::now()->subDay()) // excessive. safety trigger for future dev. see WebhookController trick
-            ->whereDate('last_notified_at', '<=', Carbon::now()->subDay())
+            ->whereDate('next_notification_at', '<', Carbon::now())
+            ->orWhereNull('next_notification_at')
             ->get();
 
         foreach ($playersPendingNotification as $player) {
-            if (!in_array($player->psid, config('facebook.allowed_psids'))) {
-                continue;
-            }
-
             try {
-                $client->post('', [
-                    'body' => \GuzzleHttp\json_encode($this->getBody($player->psid))
-                ]);
+                if ($player->next_notification_at) {
+                    $client->post('', [
+                        'body' => \GuzzleHttp\json_encode($this->getBody($player->psid))
+                    ]);
+                }
             } finally {
+                $player->next_notification_at = $this->calculateNextNotificationAt($player->last_played_at);
                 $player->last_notified_at = Carbon::now();
                 $player->save();
             }
         }
+    }
+
+
+    private function calculateNextNotificationAt(Carbon $lastPlayedAt)
+    {
+        $daysSinceLastPlayed = Carbon::now()->diffInDays($lastPlayedAt, true);
+
+        $delayInDays = $daysSinceLastPlayed + max(1, 8 - ($daysSinceLastPlayed - 4) % 12);
+
+        return $lastPlayedAt->clone()->addDays($delayInDays);
     }
 
 

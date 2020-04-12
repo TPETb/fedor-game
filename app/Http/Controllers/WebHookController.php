@@ -30,7 +30,7 @@ class WebHookController extends Controller
 
         $player->psid = $psid;
         $player->last_played_at = Carbon::now();
-        $player->last_notified_at = Carbon::now(); // a small trick to avoid all mess with nullable dates
+        $player->next_notification_at = Carbon::now()->addHour();
 
         $player->save();
     }
