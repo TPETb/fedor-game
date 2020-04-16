@@ -49,7 +49,7 @@ class SendPendingNotifications extends Command
 
         /** @var Player[] $playersPendingNotification */
         $playersPendingNotification = Player::query()
-            ->whereDate('next_notification_at', '<', Carbon::now())
+            ->where('next_notification_at', '<', Carbon::now())
             ->orWhereNull('next_notification_at')
             ->get();
 
