@@ -69,11 +69,11 @@ class SendPendingNotifications extends Command
     }
 
 
-    private function calculateNextNotificationAt(Carbon $lastPlayedAt)
+    public function calculateNextNotificationAt(Carbon $lastPlayedAt)
     {
         $daysSinceLastPlayed = Carbon::now()->diffInDays($lastPlayedAt, true);
 
-        $delayInDays = $daysSinceLastPlayed + max(1, 8 - ($daysSinceLastPlayed - 4) % 12);
+        $delayInDays = $daysSinceLastPlayed + max(1, 12 - ($daysSinceLastPlayed + 7) % 12 - 5);
 
         return $lastPlayedAt->clone()->addDays($delayInDays);
     }
