@@ -92,7 +92,7 @@ class SendPendingNotifications extends Command
                         "template_type" => "generic",
                         "elements" => [
                             [
-                                "title" => "Got a minute? ❤️",
+                                "title" => "Got a minute? Play and relax! ❤️️",
                                 "image_url" => "https://slesarev.xyz/logo.jpg",
                                 "subtitle" => "Relax & guess puzzles in OMG Guess Quiz",
                                 "default_action" => [
