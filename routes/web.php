@@ -15,3 +15,7 @@ Route::get('/webhook', 'WebHookController@webhook');
 Route::post('/webhook', 'WebHookController@webhook');
 
 Route::get('/message', "MessageController@test");
+
+Route::get('/debug-sentry', function () {
+    throw new Exception('My first Sentry error!');
+});
